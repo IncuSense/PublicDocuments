@@ -1,0 +1,2660 @@
+
+ANORD-MARDIX-CM-STD-MIB DEFINITIONS ::= BEGIN
+
+IMPORTS
+	OBJECT-TYPE, MODULE-IDENTITY, OBJECT-IDENTITY, 
+	enterprises, IpAddress, Unsigned32, Integer32
+		FROM SNMPv2-SMI
+	DateAndTime, DisplayString, MacAddress
+		FROM SNMPv2-TC;
+
+anordMardixCmStdMeterID MODULE-IDENTITY
+	LAST-UPDATED "202002191132Z"
+	ORGANIZATION 
+		"Anord Mardix Inc."
+	CONTACT-INFO 
+		"Robert Lantzy
+		c/o Anord Mardix, Inc.
+		3930 Technology Court
+		Sandston, VA 23150
+		email:  Robert.Lantzy@AnordMardix.com
+		Phone:  800-228-4689"
+	DESCRIPTION 
+		"Core Module Std Meter MIB"
+
+	REVISION "201912261157Z"
+	DESCRIPTION 
+		""
+
+	REVISION "202002190835Z"
+	DESCRIPTION 
+		"Fixed OID gap.
+		Changed SPDeviceTablesIndex range to be 1..8
+		Removed spxDeviceType from all smart port tables
+		Added spxDeviceFWRev to all smart port tables
+		Corrected spxDeviceStatus enums
+		Removed latch alarm on and off times and allnonlatch alarm settings"
+::= { cmStdMeter 1 }
+
+
+anordMardix  OBJECT-IDENTITY
+	STATUS     current
+	DESCRIPTION 
+		"Private Enterprise Number"
+	::= { enterprises 54893 }
+coreModule           OBJECT IDENTIFIER ::= { anordMardix 1 }
+cmStdMeter           OBJECT IDENTIFIER ::= { coreModule 1 }
+
+-- Information about the entire core module
+
+coreModuleInfo       OBJECT IDENTIFIER ::= { cmStdMeter 2 }
+
+-- Detailed information about Smart Port
+
+smartPortInfo        OBJECT IDENTIFIER ::= { coreModuleInfo 17 }
+digitalIO            OBJECT IDENTIFIER ::= { cmStdMeter 3 }
+comms                OBJECT IDENTIFIER ::= { cmStdMeter 4 }
+
+-- Config for entire module
+
+globalConfig         OBJECT IDENTIFIER ::= { cmStdMeter 5 }
+
+-- Per channel configuration
+
+chanConfig           OBJECT IDENTIFIER ::= { cmStdMeter 6 }
+
+-- Global alarm setup
+
+alarmEvtConfig       OBJECT IDENTIFIER ::= { cmStdMeter 7 }
+voltAlarmConfig      OBJECT IDENTIFIER ::= { alarmEvtConfig 1 }
+
+-- Branch current related alarm configs
+
+branchAlarmConfig    OBJECT IDENTIFIER ::= { alarmEvtConfig 2 }
+
+-- Branch cuirrent config for waveform captures
+
+waveCapConfig        OBJECT IDENTIFIER ::= { alarmEvtConfig 3 }
+alarmStatus          OBJECT IDENTIFIER ::= { cmStdMeter 8 }
+
+-- Summary alarm bits
+
+globalAlarmStatus    OBJECT IDENTIFIER ::= { alarmStatus 1 }
+
+-- Per phase voltage alarm status
+
+voltAlarmStatus      OBJECT IDENTIFIER ::= { alarmStatus 2 }
+
+-- Voltage related metering values
+
+voltMetering         OBJECT IDENTIFIER ::= { cmStdMeter 10 }
+
+serialNumber  OBJECT-TYPE
+	SYNTAX     Integer32
+	MAX-ACCESS read-only
+	STATUS     current
+	DESCRIPTION 
+		""
+	::= { coreModuleInfo 1 }
+
+bootloaderVersion  OBJECT-TYPE
+	SYNTAX     Integer32
+	MAX-ACCESS read-only
+	STATUS     current
+	DESCRIPTION 
+		""
+	::= { coreModuleInfo 2 }
+
+firmwareVersion  OBJECT-TYPE
+	SYNTAX     Integer32
+	MAX-ACCESS read-only
+	STATUS     current
+	DESCRIPTION 
+		""
+	::= { coreModuleInfo 3 }
+
+-- Number of times unit has been power cycled.
+
+pwrupCounter  OBJECT-TYPE
+	SYNTAX     Integer32
+	MAX-ACCESS read-only
+	STATUS     current
+	DESCRIPTION 
+		""
+	::= { coreModuleInfo 4 }
+
+-- How long unit has been running since last powerup.
+
+uptime  OBJECT-TYPE
+	SYNTAX     Integer32
+	MAX-ACCESS read-only
+	STATUS     current
+	DESCRIPTION 
+		""
+	::= { coreModuleInfo 5 }
+
+-- Not implemented yet.  This is a placeholder and will always return a zero value.
+
+deviceHealth  OBJECT-TYPE
+	SYNTAX     Integer32 (0)
+	MAX-ACCESS read-only
+	STATUS     current
+	DESCRIPTION 
+		""
+	::= { coreModuleInfo 6 }
+
+macAddress  OBJECT-TYPE
+	SYNTAX     MacAddress (SIZE(6))
+	MAX-ACCESS read-only
+	STATUS     current
+	DESCRIPTION 
+		""
+	::= { coreModuleInfo 7 }
+
+brandName  OBJECT-TYPE
+	SYNTAX     DisplayString (SIZE(32))
+	MAX-ACCESS read-only
+	STATUS     current
+	DESCRIPTION 
+		""
+	::= { coreModuleInfo 8 }
+
+modelName  OBJECT-TYPE
+	SYNTAX     DisplayString (SIZE(32))
+	MAX-ACCESS read-only
+	STATUS     current
+	DESCRIPTION 
+		""
+	::= { coreModuleInfo 9 }
+
+deviceName  OBJECT-TYPE
+	SYNTAX     DisplayString (SIZE(32))
+	MAX-ACCESS read-write
+	STATUS     current
+	DESCRIPTION 
+		""
+	::= { coreModuleInfo 10 }
+
+dmdNumSubInts  OBJECT-TYPE
+	SYNTAX     Unsigned32 (1..5)
+	MAX-ACCESS read-write
+	STATUS     current
+	DESCRIPTION 
+		"Demand number of sybintervals"
+	::= { coreModuleInfo 11 }
+
+-- Subinterval length in seconds
+
+dmdSubIntLength  OBJECT-TYPE
+	SYNTAX     Unsigned32
+	MAX-ACCESS read-write
+	STATUS     current
+	DESCRIPTION 
+		""
+	::= { coreModuleInfo 12 }
+
+-- Demand timestamp - all fields except weekday
+
+dmdTimeStamp  OBJECT-TYPE
+	SYNTAX     DateAndTime (SIZE(8))
+	MAX-ACCESS read-only
+	STATUS     current
+	DESCRIPTION 
+		""
+	::= { coreModuleInfo 13 }
+
+dmdTSWeekday  OBJECT-TYPE
+	SYNTAX     INTEGER {
+		sunday (0),
+		monday (1),
+		tuesday (2),
+		wednesday (3),
+		thursday (4),
+		friday (5),
+		saturday (6)
+	}
+	MAX-ACCESS read-only
+	STATUS     current
+	DESCRIPTION 
+		"Demand timesatmp weekday portion"
+	::= { coreModuleInfo 14 }
+
+realTimeClk  OBJECT-TYPE
+	SYNTAX     DateAndTime (SIZE(8))
+	MAX-ACCESS read-write
+	STATUS     current
+	DESCRIPTION 
+		"Time and date"
+	::= { coreModuleInfo 15 }
+
+realTimeClkWeekday  OBJECT-TYPE
+	SYNTAX     INTEGER {
+		sunday (0),
+		monday (1),
+		tuesday (2),
+		wednesday (3),
+		thursday (4),
+		friday (5),
+		saturday (6)
+	}
+	MAX-ACCESS read-only
+	STATUS     current
+	DESCRIPTION 
+		"Demand timesatmp weekday portion"
+	::= { coreModuleInfo 16 }
+
+sp1PortStatus  OBJECT-TYPE
+	SYNTAX     INTEGER {
+		nothingDetected (0),
+		deviceOK (1),
+		deviceOffline (2),
+		invalidDevice (3)
+	}
+	MAX-ACCESS read-only
+	STATUS     current
+	DESCRIPTION 
+		"Status of the device connected to Smart Port 1"
+	::= { smartPortInfo 1 }
+
+sp1NumCards  OBJECT-TYPE
+	SYNTAX     Integer32 (0..8)
+	MAX-ACCESS read-only
+	STATUS     current
+	DESCRIPTION 
+		"Number of cards connected to Smart Port 1"
+	::= { smartPortInfo 2 }
+
+sp1NumChannels  OBJECT-TYPE
+	SYNTAX     Integer32 (1..24)
+	MAX-ACCESS read-only
+	STATUS     current
+	DESCRIPTION 
+		"Total number of channels in all cards connected to Smart Port 1"
+	::= { smartPortInfo 3 }
+
+sp1DeviceTable  OBJECT-TYPE
+	SYNTAX SEQUENCE OF Sp1DeviceEntry
+	MAX-ACCESS not-accessible
+	STATUS     current
+	DESCRIPTION 
+		"Table of devices connected to Smart Port 1"
+	::= { smartPortInfo 4 }
+
+sp1DeviceEntry  OBJECT-TYPE
+	SYNTAX 	Sp1DeviceEntry
+	MAX-ACCESS not-accessible
+	STATUS     current
+	DESCRIPTION 
+		""
+	INDEX { sp1DeviceTableIndex }
+	::= { sp1DeviceTable 1 }
+
+Sp1DeviceEntry ::= SEQUENCE {
+	sp1DeviceTableIndex
+		Integer32,
+	sp1DeviceName
+		DisplayString,
+	sp1DeviceFiWVersion
+		Integer32,
+	sp1DeviceID
+		Integer32,
+	sp1DeviceSN
+		Integer32,
+	sp1DeviceStatus
+		INTEGER,
+	sp1numDevChans
+		Integer32
+}
+
+sp1DeviceTableIndex  OBJECT-TYPE
+	SYNTAX     Integer32 (1..8)
+	MAX-ACCESS read-write
+	STATUS     current
+	DESCRIPTION 
+		"Smarrt Port 1 Device Table Index"
+	::= { sp1DeviceEntry 1 }
+
+sp1DeviceName  OBJECT-TYPE
+	SYNTAX     DisplayString (SIZE(1..30))
+	MAX-ACCESS read-write
+	STATUS     current
+	DESCRIPTION 
+		"The application name of a device"
+	::= { sp1DeviceEntry 2 }
+
+sp1DeviceFiWVersion  OBJECT-TYPE
+	SYNTAX     Integer32
+	MAX-ACCESS read-only
+	STATUS     current
+	DESCRIPTION 
+		"Device firmware version"
+	::= { sp1DeviceEntry 3 }
+
+sp1DeviceID  OBJECT-TYPE
+	SYNTAX     Integer32
+	MAX-ACCESS read-only
+	STATUS     current
+	DESCRIPTION 
+		"Factory ID of this device"
+	::= { sp1DeviceEntry 4 }
+
+sp1DeviceSN  OBJECT-TYPE
+	SYNTAX     Integer32
+	MAX-ACCESS read-only
+	STATUS     current
+	DESCRIPTION 
+		"Serial number of this device"
+	::= { sp1DeviceEntry 5 }
+
+sp1DeviceStatus  OBJECT-TYPE
+	SYNTAX     INTEGER {
+		notConnected (0),
+		deviceOK (1),
+		deviceOffline (2),
+		invalidDevice (3)
+	}
+	MAX-ACCESS read-only
+	STATUS     current
+	DESCRIPTION 
+		"Operational status of this device"
+	::= { sp1DeviceEntry 6 }
+
+sp1numDevChans  OBJECT-TYPE
+	SYNTAX     Integer32 (1..6)
+	MAX-ACCESS read-only
+	STATUS     current
+	DESCRIPTION 
+		"Number of channles on this device"
+	::= { sp1DeviceEntry 7 }
+
+sp2PortStatus  OBJECT-TYPE
+	SYNTAX     INTEGER {
+		nothingDetected (0),
+		deviceOK (1),
+		deviceOffline (2),
+		invalidDevice (3)
+	}
+	MAX-ACCESS read-only
+	STATUS     current
+	DESCRIPTION 
+		"Status of the device connected to Smart Port 2"
+	::= { smartPortInfo 5 }
+
+sp2NumCards  OBJECT-TYPE
+	SYNTAX     Integer32 (0..8)
+	MAX-ACCESS read-only
+	STATUS     current
+	DESCRIPTION 
+		"Number of cards connected to Smart Port 2"
+	::= { smartPortInfo 6 }
+
+sp2NumChannels  OBJECT-TYPE
+	SYNTAX     Integer32 (1..24)
+	MAX-ACCESS read-only
+	STATUS     current
+	DESCRIPTION 
+		"Total number of channels in all cards connected to Smart Port 2"
+	::= { smartPortInfo 7 }
+
+sp2DeviceTable  OBJECT-TYPE
+	SYNTAX SEQUENCE OF Sp2DeviceEntry
+	MAX-ACCESS not-accessible
+	STATUS     current
+	DESCRIPTION 
+		"Table of devices connected to Smart Port 2"
+	::= { smartPortInfo 8 }
+
+sp2DeviceEntry  OBJECT-TYPE
+	SYNTAX 	Sp2DeviceEntry
+	MAX-ACCESS not-accessible
+	STATUS     current
+	DESCRIPTION 
+		""
+	INDEX { sp2DeviceTableIndex }
+	::= { sp2DeviceTable 1 }
+
+Sp2DeviceEntry ::= SEQUENCE {
+	sp2DeviceTableIndex
+		Integer32,
+	sp2DeviceName
+		DisplayString,
+	sp2DeviceFiWVersion
+		Integer32,
+	sp2DeviceID
+		Integer32,
+	sp2DeviceSN
+		Integer32,
+	sp2DeviceStatus
+		INTEGER,
+	sp2numDevChans
+		Integer32
+}
+
+sp2DeviceTableIndex  OBJECT-TYPE
+	SYNTAX     Integer32 (1..8)
+	MAX-ACCESS read-write
+	STATUS     current
+	DESCRIPTION 
+		"Smarrt Port 2 Device Table Index"
+	::= { sp2DeviceEntry 1 }
+
+sp2DeviceName  OBJECT-TYPE
+	SYNTAX     DisplayString (SIZE(1..30))
+	MAX-ACCESS read-write
+	STATUS     current
+	DESCRIPTION 
+		"The application name of a device"
+	::= { sp2DeviceEntry 2 }
+
+sp2DeviceFiWVersion  OBJECT-TYPE
+	SYNTAX     Integer32
+	MAX-ACCESS read-only
+	STATUS     current
+	DESCRIPTION 
+		"Device firmware version"
+	::= { sp2DeviceEntry 3 }
+
+sp2DeviceID  OBJECT-TYPE
+	SYNTAX     Integer32
+	MAX-ACCESS read-only
+	STATUS     current
+	DESCRIPTION 
+		"Factory ID of this device"
+	::= { sp2DeviceEntry 4 }
+
+sp2DeviceSN  OBJECT-TYPE
+	SYNTAX     Integer32
+	MAX-ACCESS read-only
+	STATUS     current
+	DESCRIPTION 
+		"Serial number of this device"
+	::= { sp2DeviceEntry 5 }
+
+sp2DeviceStatus  OBJECT-TYPE
+	SYNTAX     INTEGER {
+		notConnected (0),
+		deviceOK (1),
+		deviceOffline (2),
+		invalidDevice (3)
+	}
+	MAX-ACCESS read-only
+	STATUS     current
+	DESCRIPTION 
+		"Operational status of this device"
+	::= { sp2DeviceEntry 6 }
+
+sp2numDevChans  OBJECT-TYPE
+	SYNTAX     Integer32 (1..6)
+	MAX-ACCESS read-only
+	STATUS     current
+	DESCRIPTION 
+		"Number of channles on this device"
+	::= { sp2DeviceEntry 7 }
+
+sp3PortStatus  OBJECT-TYPE
+	SYNTAX     INTEGER {
+		nothingDetected (0),
+		deviceOK (1),
+		deviceOffline (2),
+		invalidDevice (3)
+	}
+	MAX-ACCESS read-only
+	STATUS     current
+	DESCRIPTION 
+		"Status of the device connected to Smart Port 3"
+	::= { smartPortInfo 9 }
+
+sp3NumCards  OBJECT-TYPE
+	SYNTAX     Integer32 (0..8)
+	MAX-ACCESS read-only
+	STATUS     current
+	DESCRIPTION 
+		"Number of cards connected to Smart Port 3"
+	::= { smartPortInfo 10 }
+
+sp3NumChannels  OBJECT-TYPE
+	SYNTAX     Integer32 (1..24)
+	MAX-ACCESS read-only
+	STATUS     current
+	DESCRIPTION 
+		"Total number of channels in all cards connected to Smart Port 3"
+	::= { smartPortInfo 11 }
+
+sp3DeviceTable  OBJECT-TYPE
+	SYNTAX SEQUENCE OF Sp3DeviceEntry
+	MAX-ACCESS not-accessible
+	STATUS     current
+	DESCRIPTION 
+		"Table of devices connected to Smart Port 3"
+	::= { smartPortInfo 12 }
+
+sp3DeviceEntry  OBJECT-TYPE
+	SYNTAX 	Sp3DeviceEntry
+	MAX-ACCESS not-accessible
+	STATUS     current
+	DESCRIPTION 
+		""
+	INDEX { sp3DeviceTableIndex }
+	::= { sp3DeviceTable 1 }
+
+Sp3DeviceEntry ::= SEQUENCE {
+	sp3DeviceTableIndex
+		Integer32,
+	sp3DeviceName
+		DisplayString,
+	sp3DeviceFiWVersion
+		Integer32,
+	sp3DeviceID
+		Integer32,
+	sp3DeviceSN
+		Integer32,
+	sp3DeviceStatus
+		INTEGER,
+	sp3numDevChans
+		Integer32
+}
+
+sp3DeviceTableIndex  OBJECT-TYPE
+	SYNTAX     Integer32 (1..8)
+	MAX-ACCESS read-write
+	STATUS     current
+	DESCRIPTION 
+		"Smarrt Port 3 Device Table Index"
+	::= { sp3DeviceEntry 1 }
+
+sp3DeviceName  OBJECT-TYPE
+	SYNTAX     DisplayString (SIZE(1..30))
+	MAX-ACCESS read-write
+	STATUS     current
+	DESCRIPTION 
+		"The application name of a device"
+	::= { sp3DeviceEntry 2 }
+
+sp3DeviceFiWVersion  OBJECT-TYPE
+	SYNTAX     Integer32
+	MAX-ACCESS read-only
+	STATUS     current
+	DESCRIPTION 
+		"Device firmware version"
+	::= { sp3DeviceEntry 3 }
+
+sp3DeviceID  OBJECT-TYPE
+	SYNTAX     Integer32
+	MAX-ACCESS read-only
+	STATUS     current
+	DESCRIPTION 
+		"Factory ID of this device"
+	::= { sp3DeviceEntry 4 }
+
+sp3DeviceSN  OBJECT-TYPE
+	SYNTAX     Integer32
+	MAX-ACCESS read-only
+	STATUS     current
+	DESCRIPTION 
+		"Serial number of this device"
+	::= { sp3DeviceEntry 5 }
+
+sp3DeviceStatus  OBJECT-TYPE
+	SYNTAX     INTEGER {
+		notConnected (0),
+		deviceOK (1),
+		deviceOffline (2),
+		invalidDevice (3)
+	}
+	MAX-ACCESS read-only
+	STATUS     current
+	DESCRIPTION 
+		"Operational status of this device"
+	::= { sp3DeviceEntry 6 }
+
+sp3numDevChans  OBJECT-TYPE
+	SYNTAX     Integer32 (1..6)
+	MAX-ACCESS read-only
+	STATUS     current
+	DESCRIPTION 
+		"Number of channles on this device"
+	::= { sp3DeviceEntry 7 }
+
+sp4PortStatus  OBJECT-TYPE
+	SYNTAX     INTEGER {
+		nothingDetected (0),
+		deviceOK (1),
+		deviceOffline (2),
+		invalidDevice (3)
+	}
+	MAX-ACCESS read-only
+	STATUS     current
+	DESCRIPTION 
+		"Status of the device connected to Smart Port 4"
+	::= { smartPortInfo 13 }
+
+sp4NumCards  OBJECT-TYPE
+	SYNTAX     Integer32 (0..8)
+	MAX-ACCESS read-only
+	STATUS     current
+	DESCRIPTION 
+		"Number of cards connected to Smart Port 4"
+	::= { smartPortInfo 14 }
+
+sp4NumChannels  OBJECT-TYPE
+	SYNTAX     Integer32 (1..24)
+	MAX-ACCESS read-only
+	STATUS     current
+	DESCRIPTION 
+		"Total number of channels in all cards connected to Smart Port 4"
+	::= { smartPortInfo 15 }
+
+sp4DeviceTable  OBJECT-TYPE
+	SYNTAX SEQUENCE OF Sp4DeviceEntry
+	MAX-ACCESS not-accessible
+	STATUS     current
+	DESCRIPTION 
+		"Table of devices connected to Smart Port 4"
+	::= { smartPortInfo 16 }
+
+sp4DeviceEntry  OBJECT-TYPE
+	SYNTAX 	Sp4DeviceEntry
+	MAX-ACCESS not-accessible
+	STATUS     current
+	DESCRIPTION 
+		""
+	INDEX { sp4DeviceTableIndex }
+	::= { sp4DeviceTable 1 }
+
+Sp4DeviceEntry ::= SEQUENCE {
+	sp4DeviceTableIndex
+		Integer32,
+	sp4DeviceName
+		DisplayString,
+	sp4DeviceFiWVersion
+		Integer32,
+	sp4DeviceID
+		Integer32,
+	sp4DeviceSN
+		Integer32,
+	sp4DeviceStatus
+		INTEGER,
+	sp4numDevChans
+		Integer32
+}
+
+sp4DeviceTableIndex  OBJECT-TYPE
+	SYNTAX     Integer32 (1..8)
+	MAX-ACCESS read-write
+	STATUS     current
+	DESCRIPTION 
+		"Smarrt Port 4 Device Table Index"
+	::= { sp4DeviceEntry 1 }
+
+sp4DeviceName  OBJECT-TYPE
+	SYNTAX     DisplayString (SIZE(1..30))
+	MAX-ACCESS read-write
+	STATUS     current
+	DESCRIPTION 
+		"The application name of a device"
+	::= { sp4DeviceEntry 2 }
+
+sp4DeviceFiWVersion  OBJECT-TYPE
+	SYNTAX     Integer32
+	MAX-ACCESS read-only
+	STATUS     current
+	DESCRIPTION 
+		"Device firmware version"
+	::= { sp4DeviceEntry 3 }
+
+sp4DeviceID  OBJECT-TYPE
+	SYNTAX     Integer32
+	MAX-ACCESS read-only
+	STATUS     current
+	DESCRIPTION 
+		"Factory ID of this device"
+	::= { sp4DeviceEntry 4 }
+
+sp4DeviceSN  OBJECT-TYPE
+	SYNTAX     Integer32
+	MAX-ACCESS read-only
+	STATUS     current
+	DESCRIPTION 
+		"Serial number of this device"
+	::= { sp4DeviceEntry 5 }
+
+sp4DeviceStatus  OBJECT-TYPE
+	SYNTAX     INTEGER {
+		notConnected (0),
+		deviceOK (1),
+		deviceOffline (2),
+		invalidDevice (3)
+	}
+	MAX-ACCESS read-only
+	STATUS     current
+	DESCRIPTION 
+		"Operational status of this device"
+	::= { sp4DeviceEntry 6 }
+
+sp4numDevChans  OBJECT-TYPE
+	SYNTAX     Integer32 (1..6)
+	MAX-ACCESS read-only
+	STATUS     current
+	DESCRIPTION 
+		"Number of channles on this device"
+	::= { sp4DeviceEntry 7 }
+
+digiOutO1  OBJECT-TYPE
+	SYNTAX     INTEGER {
+		off (0),
+		on (1)
+	}
+	MAX-ACCESS read-write
+	STATUS     current
+	DESCRIPTION 
+		""
+	::= { digitalIO 1 }
+
+digiOutO2  OBJECT-TYPE
+	SYNTAX     INTEGER {
+		off (0),
+		on (1)
+	}
+	MAX-ACCESS read-write
+	STATUS     current
+	DESCRIPTION 
+		""
+	::= { digitalIO 2 }
+
+digIntO1  OBJECT-TYPE
+	SYNTAX     INTEGER {
+		off (0),
+		on (1)
+	}
+	MAX-ACCESS read-only
+	STATUS     current
+	DESCRIPTION 
+		""
+	::= { digitalIO 3 }
+
+digIntO2  OBJECT-TYPE
+	SYNTAX     INTEGER {
+		off (0),
+		on (1)
+	}
+	MAX-ACCESS read-only
+	STATUS     current
+	DESCRIPTION 
+		""
+	::= { digitalIO 4 }
+
+deviceIP  OBJECT-TYPE
+	SYNTAX     IpAddress
+	MAX-ACCESS read-only
+	STATUS     current
+	DESCRIPTION 
+		""
+	::= { comms 1 }
+
+gatewayIP  OBJECT-TYPE
+	SYNTAX     IpAddress
+	MAX-ACCESS read-only
+	STATUS     current
+	DESCRIPTION 
+		""
+	::= { comms 2 }
+
+netMask  OBJECT-TYPE
+	SYNTAX     IpAddress
+	MAX-ACCESS read-only
+	STATUS     current
+	DESCRIPTION 
+		""
+	::= { comms 3 }
+
+ntp  OBJECT-TYPE
+	SYNTAX     IpAddress
+	MAX-ACCESS read-only
+	STATUS     current
+	DESCRIPTION 
+		""
+	::= { comms 4 }
+
+dns  OBJECT-TYPE
+	SYNTAX     IpAddress
+	MAX-ACCESS read-only
+	STATUS     current
+	DESCRIPTION 
+		""
+	::= { comms 5 }
+
+-- General config of Smart Ports 1 and 2
+
+pnl1Config  OBJECT-TYPE
+	SYNTAX     INTEGER {
+		topFeed (0),
+		bottomFeed (1),
+		sglRowSeq (2),
+		sglRowOddEven (3),
+		sequential (4)
+	}
+	MAX-ACCESS read-write
+	STATUS     current
+	DESCRIPTION 
+		""
+	::= { globalConfig 1 }
+
+-- General config of Smart Ports 3 and 4
+
+pnl2Config  OBJECT-TYPE
+	SYNTAX     INTEGER {
+		topFeed (0),
+		bottomFeed (1),
+		sglRowSeq (2),
+		sglRowOddEven (3),
+		sequential (4)
+	}
+	MAX-ACCESS read-write
+	STATUS     current
+	DESCRIPTION 
+		""
+	::= { globalConfig 2 }
+
+ctCompEnBits  OBJECT-TYPE
+	SYNTAX     BITS {
+		enCTComp (0),
+		legacyCTComp (1)
+	}
+	MAX-ACCESS read-write
+	STATUS     current
+	DESCRIPTION 
+		""
+	::= { globalConfig 3 }
+
+-- Applied to all CTs
+
+globalCTSize  OBJECT-TYPE
+	SYNTAX     Unsigned32
+	MAX-ACCESS read-write
+	STATUS     current
+	DESCRIPTION 
+		""
+	::= { globalConfig 4 }
+
+-- Applied to all breaker sizes
+
+globalBrkrSize  OBJECT-TYPE
+	SYNTAX     Unsigned32
+	MAX-ACCESS read-write
+	STATUS     current
+	DESCRIPTION 
+		""
+	::= { globalConfig 5 }
+
+-- Resets and commands for the entire module
+
+globalResets  OBJECT-TYPE
+	SYNTAX     INTEGER {
+		rebootDevice (12345),
+		resetMaxDmd (20097),
+		clrTryMtrAssmt (24658),
+		truMtrDefault (24659),
+		newDmdSub (26012),
+		resetDmd (26013),
+		rstMaxKWCur (29877),
+		clrLatchAlarms (31010),
+		startWaveCap (32123)
+	}
+	MAX-ACCESS read-write
+	STATUS     current
+	DESCRIPTION 
+		""
+	::= { globalConfig 6 }
+
+-- CT Size for each channel
+
+ctSizeTable  OBJECT-TYPE
+	SYNTAX SEQUENCE OF CtSizeEntry
+	MAX-ACCESS not-accessible
+	STATUS     current
+	DESCRIPTION 
+		""
+	::= { chanConfig 1 }
+
+ctSizeEntry  OBJECT-TYPE
+	SYNTAX 	CtSizeEntry
+	MAX-ACCESS not-accessible
+	STATUS     current
+	DESCRIPTION 
+		""
+	INDEX { ctSizeTblIndex }
+	::= { ctSizeTable 1 }
+
+CtSizeEntry ::= SEQUENCE {
+	ctSizeTblIndex
+		Unsigned32,
+	ctSize
+		Unsigned32
+}
+
+ctSizeTblIndex  OBJECT-TYPE
+	SYNTAX     Unsigned32 (1..96)
+	MAX-ACCESS read-write
+	STATUS     current
+	DESCRIPTION 
+		"CT Size channel index"
+	::= { ctSizeEntry 1 }
+
+ctSize  OBJECT-TYPE
+	SYNTAX     Unsigned32
+	MAX-ACCESS read-write
+	STATUS     current
+	DESCRIPTION 
+		""
+	::= { ctSizeEntry 2 }
+
+-- Breaker Size for each channel
+
+brkrSizeTable  OBJECT-TYPE
+	SYNTAX SEQUENCE OF BrkrSizeEntry
+	MAX-ACCESS not-accessible
+	STATUS     current
+	DESCRIPTION 
+		""
+	::= { chanConfig 2 }
+
+brkrSizeEntry  OBJECT-TYPE
+	SYNTAX 	BrkrSizeEntry
+	MAX-ACCESS not-accessible
+	STATUS     current
+	DESCRIPTION 
+		""
+	INDEX { brkrSizeTblIndex }
+	::= { brkrSizeTable 1 }
+
+BrkrSizeEntry ::= SEQUENCE {
+	brkrSizeTblIndex
+		Unsigned32,
+	brkrSize
+		Unsigned32
+}
+
+brkrSizeTblIndex  OBJECT-TYPE
+	SYNTAX     Unsigned32 (1..96)
+	MAX-ACCESS read-write
+	STATUS     current
+	DESCRIPTION 
+		"CT Size channel index"
+	::= { brkrSizeEntry 1 }
+
+brkrSize  OBJECT-TYPE
+	SYNTAX     Unsigned32
+	MAX-ACCESS read-write
+	STATUS     current
+	DESCRIPTION 
+		""
+	::= { brkrSizeEntry 2 }
+
+-- Voltage phase assignment for each channel
+
+voltPhaseTable  OBJECT-TYPE
+	SYNTAX SEQUENCE OF VoltPhaseEntry
+	MAX-ACCESS not-accessible
+	STATUS     current
+	DESCRIPTION 
+		""
+	::= { chanConfig 3 }
+
+voltPhaseEntry  OBJECT-TYPE
+	SYNTAX 	VoltPhaseEntry
+	MAX-ACCESS not-accessible
+	STATUS     current
+	DESCRIPTION 
+		""
+	INDEX { voltPhaseTblIndex }
+	::= { voltPhaseTable 1 }
+
+VoltPhaseEntry ::= SEQUENCE {
+	voltPhaseTblIndex
+		Unsigned32,
+	voltPhase
+		INTEGER
+}
+
+voltPhaseTblIndex  OBJECT-TYPE
+	SYNTAX     Unsigned32 (1..96)
+	MAX-ACCESS read-write
+	STATUS     current
+	DESCRIPTION 
+		"CT Size channel index"
+	::= { voltPhaseEntry 1 }
+
+-- l1=1, l2=1, l3=2
+
+voltPhase  OBJECT-TYPE
+	SYNTAX     INTEGER {
+		l1 (0),
+		l2 (1),
+		l3 (2)
+	}
+	MAX-ACCESS read-write
+	STATUS     current
+	DESCRIPTION 
+		""
+	::= { voltPhaseEntry 2 }
+
+-- True Circuit assignment for each channel
+
+truCktAssignTable  OBJECT-TYPE
+	SYNTAX SEQUENCE OF TruCktAssignEntry
+	MAX-ACCESS not-accessible
+	STATUS     current
+	DESCRIPTION 
+		""
+	::= { chanConfig 4 }
+
+truCktAssignEntry  OBJECT-TYPE
+	SYNTAX 	TruCktAssignEntry
+	MAX-ACCESS not-accessible
+	STATUS     current
+	DESCRIPTION 
+		""
+	INDEX { truCktAssignTblIndex }
+	::= { truCktAssignTable 1 }
+
+TruCktAssignEntry ::= SEQUENCE {
+	truCktAssignTblIndex
+		Unsigned32,
+	truCktAssign
+		Unsigned32
+}
+
+truCktAssignTblIndex  OBJECT-TYPE
+	SYNTAX     Unsigned32 (1..96)
+	MAX-ACCESS read-write
+	STATUS     current
+	DESCRIPTION 
+		"CT Size channel index"
+	::= { truCktAssignEntry 1 }
+
+-- Each channel can be assigned to true circuits 1 thriugh 96
+
+truCktAssign  OBJECT-TYPE
+	SYNTAX     Unsigned32 (1..96)
+	MAX-ACCESS read-write
+	STATUS     current
+	DESCRIPTION 
+		""
+	::= { truCktAssignEntry 2 }
+
+-- Individual channel resets
+
+chanResetTable  OBJECT-TYPE
+	SYNTAX SEQUENCE OF ChanResetEntry
+	MAX-ACCESS not-accessible
+	STATUS     current
+	DESCRIPTION 
+		""
+	::= { chanConfig 5 }
+
+chanResetEntry  OBJECT-TYPE
+	SYNTAX 	ChanResetEntry
+	MAX-ACCESS not-accessible
+	STATUS     current
+	DESCRIPTION 
+		""
+	INDEX { chanResetTblIndex }
+	::= { chanResetTable 1 }
+
+ChanResetEntry ::= SEQUENCE {
+	chanResetTblIndex
+		Unsigned32,
+	chanReset
+		INTEGER
+}
+
+chanResetTblIndex  OBJECT-TYPE
+	SYNTAX     Unsigned32 (1..96)
+	MAX-ACCESS read-write
+	STATUS     current
+	DESCRIPTION 
+		"CT Size channel index"
+	::= { chanResetEntry 1 }
+
+-- l1=1, l2=1, l3=2
+
+chanReset  OBJECT-TYPE
+	SYNTAX     INTEGER {
+		resetMaxKWCur (29877),
+		waveCap (32123)
+	}
+	MAX-ACCESS read-write
+	STATUS     current
+	DESCRIPTION 
+		""
+	::= { chanResetEntry 2 }
+
+ovAlarmDelay  OBJECT-TYPE
+	SYNTAX     Unsigned32
+	MAX-ACCESS read-write
+	STATUS     current
+	DESCRIPTION 
+		"In seconds"
+	::= { voltAlarmConfig 1 }
+
+uvAlarmDelay  OBJECT-TYPE
+	SYNTAX     Unsigned32
+	MAX-ACCESS read-write
+	STATUS     current
+	DESCRIPTION 
+		"Undervoltage alarm delay in seconds"
+	::= { voltAlarmConfig 2 }
+
+ovAlarmThresh  OBJECT-TYPE
+	SYNTAX     Unsigned32
+	MAX-ACCESS read-write
+	STATUS     current
+	DESCRIPTION 
+		"Overvoltage threshold in volts"
+	::= { voltAlarmConfig 3 }
+
+uvAlarmThresh  OBJECT-TYPE
+	SYNTAX     Unsigned32
+	MAX-ACCESS read-write
+	STATUS     current
+	DESCRIPTION 
+		"Undervoltage threshold in volts"
+	::= { voltAlarmConfig 4 }
+
+voltAlarmHys  OBJECT-TYPE
+	SYNTAX     Integer32
+	UNITS 	"Percent"
+	MAX-ACCESS read-write
+	STATUS     current
+	DESCRIPTION 
+		""
+	::= { voltAlarmConfig 5 }
+
+hiLatchAlarmDelay  OBJECT-TYPE
+	SYNTAX     Unsigned32
+	MAX-ACCESS read-write
+	STATUS     current
+	DESCRIPTION 
+		"In seconds"
+	::= { branchAlarmConfig 1 }
+
+loLatchAlarmDelay  OBJECT-TYPE
+	SYNTAX     Unsigned32
+	MAX-ACCESS read-write
+	STATUS     current
+	DESCRIPTION 
+		"In seconds"
+	::= { branchAlarmConfig 2 }
+
+hiLatchThresh  OBJECT-TYPE
+	SYNTAX     Unsigned32
+	UNITS 	"Percent"
+	MAX-ACCESS read-write
+	STATUS     current
+	DESCRIPTION 
+		"Hi latching alarm threshold in percent of breaker size"
+	::= { branchAlarmConfig 3 }
+
+loLatchThresh  OBJECT-TYPE
+	SYNTAX     Unsigned32
+	UNITS 	"Percent"
+	MAX-ACCESS read-write
+	STATUS     current
+	DESCRIPTION 
+		"Lo latching alarm threshold in percent of breaker size"
+	::= { branchAlarmConfig 4 }
+
+hiNonlatchThresh  OBJECT-TYPE
+	SYNTAX     Unsigned32
+	UNITS 	"Percent"
+	MAX-ACCESS read-write
+	STATUS     current
+	DESCRIPTION 
+		"Hi nonlatching alarm threshold in percent of breaker size"
+	::= { branchAlarmConfig 5 }
+
+loNonlatchThresh  OBJECT-TYPE
+	SYNTAX     Unsigned32
+	UNITS 	"Percent"
+	MAX-ACCESS read-write
+	STATUS     current
+	DESCRIPTION 
+		"Lo nonlatching alarm threshold in percent of breaker size"
+	::= { branchAlarmConfig 6 }
+
+nonlatchCurrentHys  OBJECT-TYPE
+	SYNTAX     Integer32
+	UNITS 	"Percent"
+	MAX-ACCESS read-write
+	STATUS     current
+	DESCRIPTION 
+		"Nonlatch current hysteresis is configured as percent of breaker size"
+	::= { branchAlarmConfig 7 }
+
+voltCapHiThresh  OBJECT-TYPE
+	SYNTAX     Unsigned32
+	MAX-ACCESS read-write
+	STATUS     current
+	DESCRIPTION 
+		"Voltage capture high voltage threshold"
+	::= { waveCapConfig 1 }
+
+curCapHiThresh  OBJECT-TYPE
+	SYNTAX     Unsigned32
+	UNITS 	"breaker setting percent x 10"
+	MAX-ACCESS read-write
+	STATUS     current
+	DESCRIPTION 
+		"Waveform capture channel high current threshold in percent of breaker current x 10"
+	::= { waveCapConfig 2 }
+
+-- Summary bits for latching alarms
+
+globalLatchAlarmStat  OBJECT-TYPE
+	SYNTAX     BITS {
+		bit00 (0),
+		hiLatchSumm (1),
+		loLatchSumm (2),
+		bit03 (3),
+		bit04 (4),
+		bit05 (5),
+		bit06 (6),
+		bit07 (7),
+		ovLatchSumm (8),
+		uvLatchSumm (9),
+		bit10 (10),
+		wfCapTrigSumm (11),
+		zeroCurSumm (12),
+		pvSumm (13)
+	}
+	MAX-ACCESS read-only
+	STATUS     current
+	DESCRIPTION 
+		""
+	::= { globalAlarmStatus 1 }
+
+globalNonlatchAlarmStat  OBJECT-TYPE
+	SYNTAX     BITS {
+		bit00 (0),
+		hiNonlatchSumm (1),
+		loNonlatchSumm (2),
+		bit03 (3),
+		bit04 (4),
+		bit05 (5),
+		bit06 (6),
+		bit07 (7),
+		ovNonlatchSumm (8),
+		uvNonlatchSumm (9)
+	}
+	MAX-ACCESS read-only
+	STATUS     current
+	DESCRIPTION 
+		""
+	::= { globalAlarmStatus 2 }
+
+globalRecLatchChan  OBJECT-TYPE
+	SYNTAX     Integer32 (1..96)
+	MAX-ACCESS read-only
+	STATUS     current
+	DESCRIPTION 
+		""
+	::= { globalAlarmStatus 3 }
+
+globalRecNonlatchChan  OBJECT-TYPE
+	SYNTAX     Integer32 (1..96)
+	MAX-ACCESS read-only
+	STATUS     current
+	DESCRIPTION 
+		""
+	::= { globalAlarmStatus 4 }
+
+totalLatchAlarms  OBJECT-TYPE
+	SYNTAX     Unsigned32 (1..96)
+	MAX-ACCESS read-only
+	STATUS     current
+	DESCRIPTION 
+		"Total number of active latching alarms"
+	::= { globalAlarmStatus 5 }
+
+totalNonlatchAlarms  OBJECT-TYPE
+	SYNTAX     Unsigned32 (1..96)
+	MAX-ACCESS read-only
+	STATUS     current
+	DESCRIPTION 
+		"Total number of active latching alarms"
+	::= { globalAlarmStatus 6 }
+
+voltAlarmL1  OBJECT-TYPE
+	SYNTAX     BITS {
+		ovLatchAlarm (0),
+		uvLatchAlarm (1),
+		bit02 (2),
+		bit03 (3),
+		bit04 (4),
+		bit05 (5),
+		bit06 (6),
+		bit07 (7),
+		ovNonlatchAlarm (8),
+		uvNonlatchAlarm (9),
+		bit10 (10),
+		wfCapTrig (11)
+	}
+	MAX-ACCESS read-only
+	STATUS     current
+	DESCRIPTION 
+		""
+	::= { voltAlarmStatus 1 }
+
+voltAlarmL2  OBJECT-TYPE
+	SYNTAX     BITS {
+		ovLatchAlarm (0),
+		uvLatchAlarm (1),
+		bit02 (2),
+		bit03 (3),
+		bit04 (4),
+		bit05 (5),
+		bit06 (6),
+		bit07 (7),
+		ovNonlatchAlarm (8),
+		uvNonlatchAlarm (9),
+		bit10 (10),
+		wfCapTrig (11)
+	}
+	MAX-ACCESS read-only
+	STATUS     current
+	DESCRIPTION 
+		""
+	::= { voltAlarmStatus 2 }
+
+voltAlarmL3  OBJECT-TYPE
+	SYNTAX     BITS {
+		ovLatchAlarm (0),
+		uvLatchAlarm (1),
+		bit02 (2),
+		bit03 (3),
+		bit04 (4),
+		bit05 (5),
+		bit06 (6),
+		bit07 (7),
+		ovNonlatchAlarm (8),
+		uvNonlatchAlarm (9),
+		bit10 (10),
+		wfCapTrig (11)
+	}
+	MAX-ACCESS read-only
+	STATUS     current
+	DESCRIPTION 
+		""
+	::= { voltAlarmStatus 3 }
+
+branchAlarmTable  OBJECT-TYPE
+	SYNTAX SEQUENCE OF BranchAlarmEntry
+	MAX-ACCESS not-accessible
+	STATUS     current
+	DESCRIPTION 
+		""
+	::= { alarmStatus 3 }
+
+branchAlarmEntry  OBJECT-TYPE
+	SYNTAX 	BranchAlarmEntry
+	MAX-ACCESS not-accessible
+	STATUS     current
+	DESCRIPTION 
+		""
+	INDEX { branchAlarmTableIndex }
+	::= { branchAlarmTable 1 }
+
+BranchAlarmEntry ::= SEQUENCE {
+	branchAlarmTableIndex
+		Integer32,
+	branchAlarmStatus
+		BITS
+}
+
+branchAlarmTableIndex  OBJECT-TYPE
+	SYNTAX     Integer32 (1..96)
+	MAX-ACCESS read-write
+	STATUS     current
+	DESCRIPTION 
+		""
+	::= { branchAlarmEntry 1 }
+
+branchAlarmStatus  OBJECT-TYPE
+	SYNTAX     BITS {
+		bit00 (0),
+		hiLatchAlarm (1),
+		loLatchAlarm (2),
+		bit03 (3),
+		bit04 (4),
+		bit05 (5),
+		bit06 (6),
+		bit07 (7),
+		hiNonlatchAlarm (8),
+		loNonlatchAlarm (9),
+		bit10 (10),
+		waveCapTriggered (11),
+		zeroCurDetect (12),
+		pvDetect (13),
+		pvCOS (14)
+	}
+	MAX-ACCESS read-only
+	STATUS     current
+	DESCRIPTION 
+		"Alarm status word for each channel"
+	::= { branchAlarmEntry 2 }
+
+frequency  OBJECT-TYPE
+	SYNTAX     Unsigned32
+	UNITS 	"Hz x 1000"
+	MAX-ACCESS read-only
+	STATUS     current
+	DESCRIPTION 
+		""
+	::= { voltMetering 1 }
+
+voltLNAvg  OBJECT-TYPE
+	SYNTAX     Unsigned32
+	UNITS 	"millivolts"
+	MAX-ACCESS read-only
+	STATUS     current
+	DESCRIPTION 
+		"Average of all line-to-neutral voltage phases"
+	::= { voltMetering 2 }
+
+voltLLAvg  OBJECT-TYPE
+	SYNTAX     Unsigned32
+	UNITS 	"millivolts"
+	MAX-ACCESS read-only
+	STATUS     current
+	DESCRIPTION 
+		"Average of all line-to-line voltage phases"
+	::= { voltMetering 3 }
+
+voltL1  OBJECT-TYPE
+	SYNTAX     Unsigned32
+	UNITS 	"millivolts"
+	MAX-ACCESS read-only
+	STATUS     current
+	DESCRIPTION 
+		"Phase L1-to-neutral voltage"
+	::= { voltMetering 4 }
+
+voltL2  OBJECT-TYPE
+	SYNTAX     Unsigned32
+	UNITS 	"millivolts"
+	MAX-ACCESS read-only
+	STATUS     current
+	DESCRIPTION 
+		"Phase L2-to-neutral voltage"
+	::= { voltMetering 5 }
+
+voltL3  OBJECT-TYPE
+	SYNTAX     Unsigned32
+	UNITS 	"millivolts"
+	MAX-ACCESS read-only
+	STATUS     current
+	DESCRIPTION 
+		"Phase L3-to-neutral voltage"
+	::= { voltMetering 6 }
+
+voltL1L2  OBJECT-TYPE
+	SYNTAX     Unsigned32
+	UNITS 	"millivolts"
+	MAX-ACCESS read-only
+	STATUS     current
+	DESCRIPTION 
+		"L1-to-L2 voltage"
+	::= { voltMetering 7 }
+
+voltL2L3  OBJECT-TYPE
+	SYNTAX     Unsigned32
+	UNITS 	"millivolts"
+	MAX-ACCESS read-only
+	STATUS     current
+	DESCRIPTION 
+		"L2-to-L3 voltage"
+	::= { voltMetering 8 }
+
+voltL3L1  OBJECT-TYPE
+	SYNTAX     Unsigned32
+	UNITS 	"millivolts"
+	MAX-ACCESS read-only
+	STATUS     current
+	DESCRIPTION 
+		"L3-to-L1 voltage"
+	::= { voltMetering 9 }
+
+voltTHDLNAvg  OBJECT-TYPE
+	SYNTAX     Unsigned32
+	UNITS 	"percent x 1000"
+	MAX-ACCESS read-only
+	STATUS     current
+	DESCRIPTION 
+		"Average THD for Line-to-neutral voltages"
+	::= { voltMetering 10 }
+
+voltTHDL1  OBJECT-TYPE
+	SYNTAX     Unsigned32
+	UNITS 	"percent x 1000"
+	MAX-ACCESS read-only
+	STATUS     current
+	DESCRIPTION 
+		"L1-to-Neutral voltage THD"
+	::= { voltMetering 11 }
+
+voltTHDL2  OBJECT-TYPE
+	SYNTAX     Unsigned32
+	UNITS 	"percent x 1000"
+	MAX-ACCESS read-only
+	STATUS     current
+	DESCRIPTION 
+		"L2-to-Neutral voltage THD"
+	::= { voltMetering 12 }
+
+voltTHDL3  OBJECT-TYPE
+	SYNTAX     Unsigned32
+	UNITS 	"percent x 1000"
+	MAX-ACCESS read-only
+	STATUS     current
+	DESCRIPTION 
+		"L3-to-Neutral voltage THD"
+	::= { voltMetering 13 }
+
+-- Relative angle of L1 phase voltage (always 0)
+
+voltAngleL1  OBJECT-TYPE
+	SYNTAX     Unsigned32
+	UNITS 	"degree x 1000"
+	MAX-ACCESS read-only
+	STATUS     current
+	DESCRIPTION 
+		""
+	::= { voltMetering 14 }
+
+-- Relative angle of L2 phase voltage to L1 phase voltage
+
+voltAngleL2  OBJECT-TYPE
+	SYNTAX     Unsigned32
+	UNITS 	"degree x 1000"
+	MAX-ACCESS read-only
+	STATUS     current
+	DESCRIPTION 
+		""
+	::= { voltMetering 15 }
+
+-- Relative angle of L3 phase voltage to L1 phase voltage
+
+voltAngleL3  OBJECT-TYPE
+	SYNTAX     Unsigned32
+	UNITS 	"degree x 1000"
+	MAX-ACCESS read-only
+	STATUS     current
+	DESCRIPTION 
+		""
+	::= { voltMetering 16 }
+
+truMeterTable  OBJECT-TYPE
+	SYNTAX SEQUENCE OF TruMeterEntry
+	MAX-ACCESS not-accessible
+	STATUS     current
+	DESCRIPTION 
+		"Logical meter-based data"
+	::= { cmStdMeter 11 }
+
+truMeterEntry  OBJECT-TYPE
+	SYNTAX 	TruMeterEntry
+	MAX-ACCESS not-accessible
+	STATUS     current
+	DESCRIPTION 
+		""
+	INDEX { truMeterTblIndex }
+	::= { truMeterTable 1 }
+
+TruMeterEntry ::= SEQUENCE {
+	truMeterTblIndex
+		Unsigned32,
+	numCktsAssigned
+		Unsigned32,
+	assignedPhCkt1
+		Unsigned32,
+	assignedPhCkt2
+		Unsigned32,
+	assignedPhCkt3
+		Unsigned32,
+	ctSizeCkt1
+		Unsigned32,
+	ctSizeCkt2
+		Unsigned32,
+	ctSizeCkt3
+		Unsigned32,
+	brkrSizeCkt1
+		Unsigned32,
+	brkrSizeCkt2
+		Unsigned32,
+	brkrSizeCkt3
+		Unsigned32,
+	voltPhCkt1
+		Unsigned32,
+	voltPhCkt2
+		Unsigned32,
+	voltPhCkt3
+		Unsigned32,
+	truMeterName
+		DisplayString,
+	tmAlarmStatus
+		Unsigned32,
+	tmKWhTot
+		Unsigned32,
+	tmKVARhTot
+		Unsigned32,
+	tmKVAhTot
+		Unsigned32,
+	tmKWTot
+		Unsigned32,
+	tmKVARTot
+		Unsigned32,
+	tmKVATot
+		Unsigned32,
+	tmCurrentAvg
+		Unsigned32,
+	tmPFAvg
+		Integer32,
+	tmNeutralCur
+		Unsigned32,
+	tmCurTHDAvg
+		Unsigned32,
+	tmMaxCurTot
+		Unsigned32,
+	tmMaxKWTot
+		Unsigned32,
+	tmCurDmdAvg
+		Unsigned32,
+	tmKWDmdAvg
+		Unsigned32,
+	tmMaxCurDmdAvg
+		Integer32,
+	tmMaxKwDmdTot
+		Integer32,
+	tmKWhSnapAvg
+		Unsigned32,
+	tmCrestFactorAvg
+		Unsigned32,
+	tmCkt1AlarmStatus
+		Unsigned32,
+	tmCkt1KWh
+		Unsigned32,
+	tmCkt1KVARh
+		Unsigned32,
+	tmCkt1KVAh
+		Unsigned32,
+	tmCkt1KW
+		Unsigned32,
+	tmCkt1KVAR
+		Unsigned32,
+	tmCkt1KVA
+		Unsigned32,
+	tmCkt1Current
+		Unsigned32,
+	tmCkt1PF
+		Integer32,
+	tmCkt1CurAngle
+		Integer32,
+	tmCkt1CurTHD
+		Unsigned32,
+	tmCkt1MaxCur
+		Unsigned32,
+	tmCkt1MaxKW
+		Unsigned32,
+	tmCkt1CurDmd
+		Unsigned32,
+	tmCkt1KWDmd
+		Unsigned32,
+	tmCkt1MaxCurDmd
+		Integer32,
+	tmCkt1MaxKwDmd
+		Integer32,
+	tmCkt1KWhSnapshot
+		Unsigned32,
+	tmCkt1CrestFactor
+		Unsigned32,
+	tmCkt1Utilization
+		Unsigned32,
+	tmCkt2AlarmStatus
+		Unsigned32,
+	tmCkt2KWh
+		Unsigned32,
+	tmCkt2KVARh
+		Unsigned32,
+	tmCkt2KVAh
+		Unsigned32,
+	tmCkt2KW
+		Unsigned32,
+	tmCkt2KVAR
+		Unsigned32,
+	tmCkt2KVA
+		Unsigned32,
+	tmCkt2Current
+		Unsigned32,
+	tmCkt2PF
+		Integer32,
+	tmCkt2CurAngle
+		Integer32,
+	tmCkt2CurTHD
+		Unsigned32,
+	tmCkt2MaxCur
+		Unsigned32,
+	tmCkt2MaxKW
+		Unsigned32,
+	tmCkt2CurDmd
+		Unsigned32,
+	tmCkt2KWDmd
+		Unsigned32,
+	tmCkt2MaxCurDmd
+		Integer32,
+	tmCkt2MaxKwDmd
+		Integer32,
+	tmCkt2KWhSnapshot
+		Unsigned32,
+	tmCkt2CrestFactor
+		Unsigned32,
+	tmCkt2Utilization
+		Unsigned32,
+	tmCkt3AlarmStatus
+		Unsigned32,
+	tmCkt3KWh
+		Unsigned32,
+	tmCkt3KVARh
+		Unsigned32,
+	tmCkt3KVAh
+		Unsigned32,
+	tmCkt3KW
+		Unsigned32,
+	tmCkt3KVAR
+		Unsigned32,
+	tmCkt3KVA
+		Unsigned32,
+	tmCkt3Current
+		Unsigned32,
+	tmCkt3PF
+		Integer32,
+	tmCkt3CurAngle
+		Integer32,
+	tmCkt3CurTHD
+		Unsigned32,
+	tmCkt3MaxCur
+		Unsigned32,
+	tmCkt3MaxKW
+		Unsigned32,
+	tmCkt3CurDmd
+		Unsigned32,
+	tmCkt3KWDmd
+		Unsigned32,
+	tmCkt3MaxCurDmd
+		Integer32,
+	tmCkt3MaxKwDmd
+		Integer32,
+	tmCkt3KWhSnapshot
+		Unsigned32,
+	tmCkt3CrestFactor
+		Unsigned32,
+	tmCkt3Utilization
+		Unsigned32
+}
+
+truMeterTblIndex  OBJECT-TYPE
+	SYNTAX     Unsigned32 (1..96)
+	MAX-ACCESS read-write
+	STATUS     current
+	DESCRIPTION 
+		"True Meter index"
+	::= { truMeterEntry 1 }
+
+numCktsAssigned  OBJECT-TYPE
+	SYNTAX     Unsigned32 (1..3)
+	MAX-ACCESS read-only
+	STATUS     current
+	DESCRIPTION 
+		"Number of circuits assigned to this true meter"
+	::= { truMeterEntry 2 }
+
+-- 0=l1, 1=L2, 2=L3
+
+assignedPhCkt1  OBJECT-TYPE
+	SYNTAX     Unsigned32 (0..2)
+	MAX-ACCESS read-only
+	STATUS     current
+	DESCRIPTION 
+		"Phase assigned to circuit 1"
+	::= { truMeterEntry 3 }
+
+-- 0=l1, 1=L2, 2=L3
+
+assignedPhCkt2  OBJECT-TYPE
+	SYNTAX     Unsigned32 (0..2)
+	MAX-ACCESS read-only
+	STATUS     current
+	DESCRIPTION 
+		"Phase assigned to circuit 2"
+	::= { truMeterEntry 4 }
+
+-- 0=l1, 1=L2, 2=L3
+
+assignedPhCkt3  OBJECT-TYPE
+	SYNTAX     Unsigned32 (0..2)
+	MAX-ACCESS read-only
+	STATUS     current
+	DESCRIPTION 
+		"Phase assigned to circuit 3"
+	::= { truMeterEntry 5 }
+
+ctSizeCkt1  OBJECT-TYPE
+	SYNTAX     Unsigned32
+	MAX-ACCESS read-only
+	STATUS     current
+	DESCRIPTION 
+		"CT size for circuit 1"
+	::= { truMeterEntry 6 }
+
+ctSizeCkt2  OBJECT-TYPE
+	SYNTAX     Unsigned32
+	MAX-ACCESS read-only
+	STATUS     current
+	DESCRIPTION 
+		"CT size for circuit 2"
+	::= { truMeterEntry 7 }
+
+ctSizeCkt3  OBJECT-TYPE
+	SYNTAX     Unsigned32
+	MAX-ACCESS read-only
+	STATUS     current
+	DESCRIPTION 
+		"CT size for circuit 3"
+	::= { truMeterEntry 8 }
+
+brkrSizeCkt1  OBJECT-TYPE
+	SYNTAX     Unsigned32
+	MAX-ACCESS read-only
+	STATUS     current
+	DESCRIPTION 
+		"Breaker size for circuit 1"
+	::= { truMeterEntry 9 }
+
+brkrSizeCkt2  OBJECT-TYPE
+	SYNTAX     Unsigned32
+	MAX-ACCESS read-only
+	STATUS     current
+	DESCRIPTION 
+		"Breaker size for circuit 2"
+	::= { truMeterEntry 10 }
+
+brkrSizeCkt3  OBJECT-TYPE
+	SYNTAX     Unsigned32
+	MAX-ACCESS read-only
+	STATUS     current
+	DESCRIPTION 
+		"Breaker size for circuit 3"
+	::= { truMeterEntry 11 }
+
+-- 0=L1, 1=L2, 2=L3
+
+voltPhCkt1  OBJECT-TYPE
+	SYNTAX     Unsigned32 (0..2)
+	MAX-ACCESS read-only
+	STATUS     current
+	DESCRIPTION 
+		"Voltage phase assigned to circuit 1"
+	::= { truMeterEntry 12 }
+
+-- 0=L1, 1=L2, 2=L3
+
+voltPhCkt2  OBJECT-TYPE
+	SYNTAX     Unsigned32 (0..2)
+	MAX-ACCESS read-only
+	STATUS     current
+	DESCRIPTION 
+		"Voltage phase assigned to circuit 2"
+	::= { truMeterEntry 13 }
+
+-- 0=L1, 1=L2, 2=L3
+
+voltPhCkt3  OBJECT-TYPE
+	SYNTAX     Unsigned32 (0..2)
+	MAX-ACCESS read-only
+	STATUS     current
+	DESCRIPTION 
+		"Voltage phase assigned to circuit 3"
+	::= { truMeterEntry 14 }
+
+truMeterName  OBJECT-TYPE
+	SYNTAX     DisplayString (SIZE(1..40))
+	MAX-ACCESS read-write
+	STATUS     current
+	DESCRIPTION 
+		"User name for this true meter"
+	::= { truMeterEntry 15 }
+
+-- Undefined
+
+tmAlarmStatus  OBJECT-TYPE
+	SYNTAX     Unsigned32
+	MAX-ACCESS read-only
+	STATUS     current
+	DESCRIPTION 
+		"Alarm status of this true meter"
+	::= { truMeterEntry 16 }
+
+tmKWhTot  OBJECT-TYPE
+	SYNTAX     Unsigned32
+	UNITS 	"kWh"
+	MAX-ACCESS read-only
+	STATUS     current
+	DESCRIPTION 
+		"Total real energy for this true meter"
+	::= { truMeterEntry 17 }
+
+tmKVARhTot  OBJECT-TYPE
+	SYNTAX     Unsigned32
+	UNITS 	"kVARh"
+	MAX-ACCESS read-only
+	STATUS     current
+	DESCRIPTION 
+		"Total reactive energy for this true meter"
+	::= { truMeterEntry 18 }
+
+tmKVAhTot  OBJECT-TYPE
+	SYNTAX     Unsigned32
+	UNITS 	"kVAh"
+	MAX-ACCESS read-only
+	STATUS     current
+	DESCRIPTION 
+		"Total apparent energy for this true meter"
+	::= { truMeterEntry 19 }
+
+tmKWTot  OBJECT-TYPE
+	SYNTAX     Unsigned32
+	UNITS 	"watts"
+	MAX-ACCESS read-only
+	STATUS     current
+	DESCRIPTION 
+		"Total real power for this true meter"
+	::= { truMeterEntry 20 }
+
+tmKVARTot  OBJECT-TYPE
+	SYNTAX     Unsigned32
+	UNITS 	"volt-amps"
+	MAX-ACCESS read-only
+	STATUS     current
+	DESCRIPTION 
+		"Total reactive power for this true meter"
+	::= { truMeterEntry 21 }
+
+tmKVATot  OBJECT-TYPE
+	SYNTAX     Unsigned32
+	UNITS 	"volt-amps"
+	MAX-ACCESS read-only
+	STATUS     current
+	DESCRIPTION 
+		"Total apparent power for this true meter"
+	::= { truMeterEntry 22 }
+
+tmCurrentAvg  OBJECT-TYPE
+	SYNTAX     Unsigned32
+	UNITS 	"milliamps"
+	MAX-ACCESS read-only
+	STATUS     current
+	DESCRIPTION 
+		"Avergae current for this true meter"
+	::= { truMeterEntry 23 }
+
+-- Actual PF x 10.  - for lagging.
+
+tmPFAvg  OBJECT-TYPE
+	SYNTAX     Integer32 (-10..10)
+	UNITS 	"x 1000"
+	MAX-ACCESS read-only
+	STATUS     current
+	DESCRIPTION 
+		"Avergae power factor for this true meter"
+	::= { truMeterEntry 24 }
+
+tmNeutralCur  OBJECT-TYPE
+	SYNTAX     Unsigned32
+	UNITS 	"milliamps"
+	MAX-ACCESS read-only
+	STATUS     current
+	DESCRIPTION 
+		"Derived neutral current"
+	::= { truMeterEntry 25 }
+
+tmCurTHDAvg  OBJECT-TYPE
+	SYNTAX     Unsigned32
+	UNITS 	"percent x 1000"
+	MAX-ACCESS read-only
+	STATUS     current
+	DESCRIPTION 
+		"Average current THD for this true meter"
+	::= { truMeterEntry 26 }
+
+tmMaxCurTot  OBJECT-TYPE
+	SYNTAX     Unsigned32
+	UNITS 	"milliamps"
+	MAX-ACCESS read-only
+	STATUS     current
+	DESCRIPTION 
+		"Max total current measured since last reset for this true meter"
+	::= { truMeterEntry 27 }
+
+tmMaxKWTot  OBJECT-TYPE
+	SYNTAX     Unsigned32
+	UNITS 	"watts"
+	MAX-ACCESS read-only
+	STATUS     current
+	DESCRIPTION 
+		"Max total power measured since last reset for this true meter"
+	::= { truMeterEntry 28 }
+
+tmCurDmdAvg  OBJECT-TYPE
+	SYNTAX     Unsigned32
+	UNITS 	"milliamps"
+	MAX-ACCESS read-only
+	STATUS     current
+	DESCRIPTION 
+		"Max current average  measured during demand period"
+	::= { truMeterEntry 29 }
+
+tmKWDmdAvg  OBJECT-TYPE
+	SYNTAX     Unsigned32
+	UNITS 	"watts"
+	MAX-ACCESS read-only
+	STATUS     current
+	DESCRIPTION 
+		"Max power measured during demand period"
+	::= { truMeterEntry 30 }
+
+tmMaxCurDmdAvg  OBJECT-TYPE
+	SYNTAX     Integer32
+	UNITS 	"milliamps"
+	MAX-ACCESS read-only
+	STATUS     current
+	DESCRIPTION 
+		"Max current demand - average of all phases"
+	::= { truMeterEntry 31 }
+
+tmMaxKwDmdTot  OBJECT-TYPE
+	SYNTAX     Integer32
+	UNITS 	"watts"
+	MAX-ACCESS read-only
+	STATUS     current
+	DESCRIPTION 
+		"Max KW demand - total of all phases"
+	::= { truMeterEntry 32 }
+
+tmKWhSnapAvg  OBJECT-TYPE
+	SYNTAX     Unsigned32
+	UNITS 	"watt-hours"
+	MAX-ACCESS read-only
+	STATUS     current
+	DESCRIPTION 
+		""
+	::= { truMeterEntry 33 }
+
+tmCrestFactorAvg  OBJECT-TYPE
+	SYNTAX     Unsigned32
+	UNITS 	"x 1000"
+	MAX-ACCESS read-only
+	STATUS     current
+	DESCRIPTION 
+		""
+	::= { truMeterEntry 34 }
+
+-- Undefined
+
+tmCkt1AlarmStatus  OBJECT-TYPE
+	SYNTAX     Unsigned32
+	MAX-ACCESS read-only
+	STATUS     current
+	DESCRIPTION 
+		"Alarm status of Circuit 1 of this True Meter"
+	::= { truMeterEntry 35 }
+
+tmCkt1KWh  OBJECT-TYPE
+	SYNTAX     Unsigned32
+	UNITS 	"watt-hours"
+	MAX-ACCESS read-only
+	STATUS     current
+	DESCRIPTION 
+		"Real energy for Circuit 1of this true meter"
+	::= { truMeterEntry 36 }
+
+tmCkt1KVARh  OBJECT-TYPE
+	SYNTAX     Unsigned32
+	UNITS 	"volt-amp-hours"
+	MAX-ACCESS read-only
+	STATUS     current
+	DESCRIPTION 
+		"Reactive energy for Circuit 1 of this true meter"
+	::= { truMeterEntry 37 }
+
+tmCkt1KVAh  OBJECT-TYPE
+	SYNTAX     Unsigned32
+	UNITS 	"volt-amp-hours"
+	MAX-ACCESS read-only
+	STATUS     current
+	DESCRIPTION 
+		"Apparent energy for Circuit 1 of this true meter"
+	::= { truMeterEntry 38 }
+
+tmCkt1KW  OBJECT-TYPE
+	SYNTAX     Unsigned32
+	UNITS 	"watts"
+	MAX-ACCESS read-only
+	STATUS     current
+	DESCRIPTION 
+		"Real power for Circuit 1 of this true meter"
+	::= { truMeterEntry 39 }
+
+tmCkt1KVAR  OBJECT-TYPE
+	SYNTAX     Unsigned32
+	UNITS 	"volt-amps"
+	MAX-ACCESS read-only
+	STATUS     current
+	DESCRIPTION 
+		"Reactive power for Circuit 1 of this true meter"
+	::= { truMeterEntry 40 }
+
+tmCkt1KVA  OBJECT-TYPE
+	SYNTAX     Unsigned32
+	UNITS 	"volt-amps"
+	MAX-ACCESS read-only
+	STATUS     current
+	DESCRIPTION 
+		"Apparent power for Circuit 1 of this true meter"
+	::= { truMeterEntry 41 }
+
+tmCkt1Current  OBJECT-TYPE
+	SYNTAX     Unsigned32
+	UNITS 	"milliamps"
+	MAX-ACCESS read-only
+	STATUS     current
+	DESCRIPTION 
+		"Current for Circuit 1 of this true meter"
+	::= { truMeterEntry 42 }
+
+-- Actual PF x 10.  - for lagging.
+
+tmCkt1PF  OBJECT-TYPE
+	SYNTAX     Integer32 (-10..10)
+	UNITS 	"x 1000"
+	MAX-ACCESS read-only
+	STATUS     current
+	DESCRIPTION 
+		"Power factor for Circuit 1 of this true meter"
+	::= { truMeterEntry 43 }
+
+tmCkt1CurAngle  OBJECT-TYPE
+	SYNTAX     Integer32
+	UNITS 	"degrees"
+	MAX-ACCESS read-only
+	STATUS     current
+	DESCRIPTION 
+		"Angle offset of this phase - Phase 1 is always 0"
+	::= { truMeterEntry 44 }
+
+tmCkt1CurTHD  OBJECT-TYPE
+	SYNTAX     Unsigned32
+	MAX-ACCESS read-only
+	STATUS     current
+	DESCRIPTION 
+		"Current THD for Circuit 1 of this true meter"
+	::= { truMeterEntry 45 }
+
+tmCkt1MaxCur  OBJECT-TYPE
+	SYNTAX     Unsigned32
+	UNITS 	"milliamps"
+	MAX-ACCESS read-only
+	STATUS     current
+	DESCRIPTION 
+		"Max current measured since last reset for Circuit 1 of  this true meter"
+	::= { truMeterEntry 46 }
+
+tmCkt1MaxKW  OBJECT-TYPE
+	SYNTAX     Unsigned32
+	UNITS 	"watts"
+	MAX-ACCESS read-only
+	STATUS     current
+	DESCRIPTION 
+		"Max power measured since last reset for Circuit 1 of this true meter"
+	::= { truMeterEntry 47 }
+
+tmCkt1CurDmd  OBJECT-TYPE
+	SYNTAX     Unsigned32
+	UNITS 	"milliamps"
+	MAX-ACCESS read-only
+	STATUS     current
+	DESCRIPTION 
+		"Max current measured during demand period for Circuit 1 of this true meter"
+	::= { truMeterEntry 48 }
+
+tmCkt1KWDmd  OBJECT-TYPE
+	SYNTAX     Unsigned32
+	UNITS 	"watts"
+	MAX-ACCESS read-only
+	STATUS     current
+	DESCRIPTION 
+		"Max power measured during demand period for Circuit 1 of this true meter"
+	::= { truMeterEntry 49 }
+
+tmCkt1MaxCurDmd  OBJECT-TYPE
+	SYNTAX     Integer32
+	UNITS 	"milliamps"
+	MAX-ACCESS read-only
+	STATUS     current
+	DESCRIPTION 
+		"Max current demand"
+	::= { truMeterEntry 50 }
+
+tmCkt1MaxKwDmd  OBJECT-TYPE
+	SYNTAX     Integer32
+	UNITS 	"watts"
+	MAX-ACCESS read-only
+	STATUS     current
+	DESCRIPTION 
+		"Max KW demand"
+	::= { truMeterEntry 51 }
+
+tmCkt1KWhSnapshot  OBJECT-TYPE
+	SYNTAX     Unsigned32
+	UNITS 	"watt-hours"
+	MAX-ACCESS read-only
+	STATUS     current
+	DESCRIPTION 
+		""
+	::= { truMeterEntry 52 }
+
+tmCkt1CrestFactor  OBJECT-TYPE
+	SYNTAX     Unsigned32
+	UNITS 	"x 1000"
+	MAX-ACCESS read-only
+	STATUS     current
+	DESCRIPTION 
+		""
+	::= { truMeterEntry 53 }
+
+tmCkt1Utilization  OBJECT-TYPE
+	SYNTAX     Unsigned32
+	UNITS 	"percent x 1000"
+	MAX-ACCESS read-only
+	STATUS     current
+	DESCRIPTION 
+		"Undefined"
+	::= { truMeterEntry 54 }
+
+-- Undefined
+
+tmCkt2AlarmStatus  OBJECT-TYPE
+	SYNTAX     Unsigned32
+	MAX-ACCESS read-only
+	STATUS     current
+	DESCRIPTION 
+		"Alarm status of Circuit 2 of this True Meter"
+	::= { truMeterEntry 55 }
+
+tmCkt2KWh  OBJECT-TYPE
+	SYNTAX     Unsigned32
+	UNITS 	"watt-hours"
+	MAX-ACCESS read-only
+	STATUS     current
+	DESCRIPTION 
+		"Real energy for Circuit 2of this true meter"
+	::= { truMeterEntry 56 }
+
+tmCkt2KVARh  OBJECT-TYPE
+	SYNTAX     Unsigned32
+	UNITS 	"volt-amp-hours"
+	MAX-ACCESS read-only
+	STATUS     current
+	DESCRIPTION 
+		"Reactive energy for Circuit 2 of this true meter"
+	::= { truMeterEntry 57 }
+
+tmCkt2KVAh  OBJECT-TYPE
+	SYNTAX     Unsigned32
+	UNITS 	"volt-amp-hours"
+	MAX-ACCESS read-only
+	STATUS     current
+	DESCRIPTION 
+		"Apparent energy for Circuit 2 of this true meter"
+	::= { truMeterEntry 58 }
+
+tmCkt2KW  OBJECT-TYPE
+	SYNTAX     Unsigned32
+	UNITS 	"watts"
+	MAX-ACCESS read-only
+	STATUS     current
+	DESCRIPTION 
+		"Real power for Circuit 2 of this true meter"
+	::= { truMeterEntry 59 }
+
+tmCkt2KVAR  OBJECT-TYPE
+	SYNTAX     Unsigned32
+	UNITS 	"volt-amps"
+	MAX-ACCESS read-only
+	STATUS     current
+	DESCRIPTION 
+		"Reactive power for Circuit 2 of this true meter"
+	::= { truMeterEntry 60 }
+
+tmCkt2KVA  OBJECT-TYPE
+	SYNTAX     Unsigned32
+	UNITS 	"volt-amps"
+	MAX-ACCESS read-only
+	STATUS     current
+	DESCRIPTION 
+		"Apparent power for Circuit 2 of this true meter"
+	::= { truMeterEntry 61 }
+
+tmCkt2Current  OBJECT-TYPE
+	SYNTAX     Unsigned32
+	UNITS 	"milliamps"
+	MAX-ACCESS read-only
+	STATUS     current
+	DESCRIPTION 
+		"Current for Circuit 2 of this true meter"
+	::= { truMeterEntry 62 }
+
+-- Actual PF x 10.  - for lagging.
+
+tmCkt2PF  OBJECT-TYPE
+	SYNTAX     Integer32 (-10..10)
+	UNITS 	"x 1000"
+	MAX-ACCESS read-only
+	STATUS     current
+	DESCRIPTION 
+		"Power factor for Circuit 2 of this true meter"
+	::= { truMeterEntry 63 }
+
+tmCkt2CurAngle  OBJECT-TYPE
+	SYNTAX     Integer32
+	UNITS 	"degrees x 1000"
+	MAX-ACCESS read-only
+	STATUS     current
+	DESCRIPTION 
+		"Angle offset of this phase"
+	::= { truMeterEntry 64 }
+
+tmCkt2CurTHD  OBJECT-TYPE
+	SYNTAX     Unsigned32
+	UNITS 	"percent x 1000"
+	MAX-ACCESS read-only
+	STATUS     current
+	DESCRIPTION 
+		"Current THD for Circuit 2 of this true meter"
+	::= { truMeterEntry 65 }
+
+tmCkt2MaxCur  OBJECT-TYPE
+	SYNTAX     Unsigned32
+	UNITS 	"milliamps"
+	MAX-ACCESS read-only
+	STATUS     current
+	DESCRIPTION 
+		"Max current measured since last reset for Circuit 2 of  this true meter"
+	::= { truMeterEntry 66 }
+
+tmCkt2MaxKW  OBJECT-TYPE
+	SYNTAX     Unsigned32
+	UNITS 	"watts"
+	MAX-ACCESS read-only
+	STATUS     current
+	DESCRIPTION 
+		"Max power measured since last reset for Circuit 2 of this true meter"
+	::= { truMeterEntry 67 }
+
+tmCkt2CurDmd  OBJECT-TYPE
+	SYNTAX     Unsigned32
+	UNITS 	"milliamps"
+	MAX-ACCESS read-only
+	STATUS     current
+	DESCRIPTION 
+		"Max current measured during demand period for Circuit 2 of this true meter"
+	::= { truMeterEntry 68 }
+
+tmCkt2KWDmd  OBJECT-TYPE
+	SYNTAX     Unsigned32
+	UNITS 	"watts"
+	MAX-ACCESS read-only
+	STATUS     current
+	DESCRIPTION 
+		"Max power measured during demand period for Circuit 2 of this true meter"
+	::= { truMeterEntry 69 }
+
+tmCkt2MaxCurDmd  OBJECT-TYPE
+	SYNTAX     Integer32
+	UNITS 	"milliamps"
+	MAX-ACCESS read-only
+	STATUS     current
+	DESCRIPTION 
+		"Max current demand"
+	::= { truMeterEntry 70 }
+
+tmCkt2MaxKwDmd  OBJECT-TYPE
+	SYNTAX     Integer32
+	UNITS 	"watts"
+	MAX-ACCESS read-only
+	STATUS     current
+	DESCRIPTION 
+		"Max KW demand"
+	::= { truMeterEntry 71 }
+
+tmCkt2KWhSnapshot  OBJECT-TYPE
+	SYNTAX     Unsigned32
+	UNITS 	"watt-hours"
+	MAX-ACCESS read-only
+	STATUS     current
+	DESCRIPTION 
+		""
+	::= { truMeterEntry 72 }
+
+tmCkt2CrestFactor  OBJECT-TYPE
+	SYNTAX     Unsigned32
+	UNITS 	"x 1000"
+	MAX-ACCESS read-only
+	STATUS     current
+	DESCRIPTION 
+		""
+	::= { truMeterEntry 73 }
+
+tmCkt2Utilization  OBJECT-TYPE
+	SYNTAX     Unsigned32
+	UNITS 	"percent x 1000"
+	MAX-ACCESS read-only
+	STATUS     current
+	DESCRIPTION 
+		"Undefined"
+	::= { truMeterEntry 74 }
+
+-- Undefined
+
+tmCkt3AlarmStatus  OBJECT-TYPE
+	SYNTAX     Unsigned32
+	MAX-ACCESS read-only
+	STATUS     current
+	DESCRIPTION 
+		"Alarm status of Circuit 3 of this True Meter"
+	::= { truMeterEntry 75 }
+
+tmCkt3KWh  OBJECT-TYPE
+	SYNTAX     Unsigned32
+	UNITS 	"watt-hours"
+	MAX-ACCESS read-only
+	STATUS     current
+	DESCRIPTION 
+		"Real energy for Circuit 3of this true meter"
+	::= { truMeterEntry 76 }
+
+tmCkt3KVARh  OBJECT-TYPE
+	SYNTAX     Unsigned32
+	UNITS 	"volt-amp-hours"
+	MAX-ACCESS read-only
+	STATUS     current
+	DESCRIPTION 
+		"Reactive energy for Circuit 3 of this true meter"
+	::= { truMeterEntry 77 }
+
+tmCkt3KVAh  OBJECT-TYPE
+	SYNTAX     Unsigned32
+	UNITS 	"volt-amp-hours"
+	MAX-ACCESS read-only
+	STATUS     current
+	DESCRIPTION 
+		"Apparent energy for Circuit 3 of this true meter"
+	::= { truMeterEntry 78 }
+
+tmCkt3KW  OBJECT-TYPE
+	SYNTAX     Unsigned32
+	UNITS 	"watts"
+	MAX-ACCESS read-only
+	STATUS     current
+	DESCRIPTION 
+		"Real power for Circuit 3 of this true meter"
+	::= { truMeterEntry 79 }
+
+tmCkt3KVAR  OBJECT-TYPE
+	SYNTAX     Unsigned32
+	UNITS 	"volt-amps"
+	MAX-ACCESS read-only
+	STATUS     current
+	DESCRIPTION 
+		"Reactive power for Circuit 3 of this true meter"
+	::= { truMeterEntry 80 }
+
+tmCkt3KVA  OBJECT-TYPE
+	SYNTAX     Unsigned32
+	UNITS 	"volt-amps"
+	MAX-ACCESS read-only
+	STATUS     current
+	DESCRIPTION 
+		"Apparent power for Circuit 3 of this true meter"
+	::= { truMeterEntry 81 }
+
+tmCkt3Current  OBJECT-TYPE
+	SYNTAX     Unsigned32
+	UNITS 	"milliamps"
+	MAX-ACCESS read-only
+	STATUS     current
+	DESCRIPTION 
+		"Current for Circuit 3 of this true meter"
+	::= { truMeterEntry 82 }
+
+-- Actual PF x 10.  - for lagging.
+
+tmCkt3PF  OBJECT-TYPE
+	SYNTAX     Integer32 (-10..10)
+	UNITS 	"x 1000"
+	MAX-ACCESS read-only
+	STATUS     current
+	DESCRIPTION 
+		"Power factor for Circuit 3 of this true meter"
+	::= { truMeterEntry 83 }
+
+tmCkt3CurAngle  OBJECT-TYPE
+	SYNTAX     Integer32
+	UNITS 	"degrees x 1000"
+	MAX-ACCESS read-only
+	STATUS     current
+	DESCRIPTION 
+		"Angle offset of this phase"
+	::= { truMeterEntry 84 }
+
+tmCkt3CurTHD  OBJECT-TYPE
+	SYNTAX     Unsigned32
+	MAX-ACCESS read-only
+	STATUS     current
+	DESCRIPTION 
+		"Current THD for Circuit 3 of this true meter"
+	::= { truMeterEntry 85 }
+
+tmCkt3MaxCur  OBJECT-TYPE
+	SYNTAX     Unsigned32
+	UNITS 	"milliamps"
+	MAX-ACCESS read-only
+	STATUS     current
+	DESCRIPTION 
+		"Max current measured since last reset for Circuit 3 of  this true meter"
+	::= { truMeterEntry 86 }
+
+tmCkt3MaxKW  OBJECT-TYPE
+	SYNTAX     Unsigned32
+	UNITS 	"watts"
+	MAX-ACCESS read-only
+	STATUS     current
+	DESCRIPTION 
+		"Max power measured since last reset for Circuit 3 of this true meter"
+	::= { truMeterEntry 87 }
+
+tmCkt3CurDmd  OBJECT-TYPE
+	SYNTAX     Unsigned32
+	UNITS 	"milliamps"
+	MAX-ACCESS read-only
+	STATUS     current
+	DESCRIPTION 
+		"Max current measured during demand period for Circuit 3 of this true meter"
+	::= { truMeterEntry 88 }
+
+tmCkt3KWDmd  OBJECT-TYPE
+	SYNTAX     Unsigned32
+	UNITS 	"watts"
+	MAX-ACCESS read-only
+	STATUS     current
+	DESCRIPTION 
+		"Max power measured during demand period for Circuit 3 of this true meter"
+	::= { truMeterEntry 89 }
+
+tmCkt3MaxCurDmd  OBJECT-TYPE
+	SYNTAX     Integer32
+	UNITS 	"milliamps"
+	MAX-ACCESS read-only
+	STATUS     current
+	DESCRIPTION 
+		"Max current demand"
+	::= { truMeterEntry 90 }
+
+tmCkt3MaxKwDmd  OBJECT-TYPE
+	SYNTAX     Integer32
+	UNITS 	"watts"
+	MAX-ACCESS read-only
+	STATUS     current
+	DESCRIPTION 
+		"Max KW demand"
+	::= { truMeterEntry 91 }
+
+tmCkt3KWhSnapshot  OBJECT-TYPE
+	SYNTAX     Unsigned32
+	UNITS 	"watt-hours"
+	MAX-ACCESS read-only
+	STATUS     current
+	DESCRIPTION 
+		""
+	::= { truMeterEntry 92 }
+
+tmCkt3CrestFactor  OBJECT-TYPE
+	SYNTAX     Unsigned32
+	UNITS 	"x 1000"
+	MAX-ACCESS read-only
+	STATUS     current
+	DESCRIPTION 
+		""
+	::= { truMeterEntry 93 }
+
+tmCkt3Utilization  OBJECT-TYPE
+	SYNTAX     Unsigned32
+	UNITS 	"percent x 1000"
+	MAX-ACCESS read-only
+	STATUS     current
+	DESCRIPTION 
+		"Undefined"
+	::= { truMeterEntry 94 }
+END
+
+
+-- This MIB was created using NuDesign Technologies' Visual MIBuilder (Ver 6.2).
+
