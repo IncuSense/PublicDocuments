@@ -1,0 +1,99 @@
+/* get_device_info API */
+
+/* full example with multiple cards on each smart port */
+
+myObj = {
+  "DEVICE": {
+  	"model":"CM02AM", "name":"Core Module", "location":"Panel#1","version":"1.111","mac":"70B3D57A5FD2"
+  },
+  "SP1": [
+  	{ "cards":"3","type":"4"},
+    { "sn":"0x1234", "channels":"6", "status":"1", "vp":"1", "revision":"8", "name":"Card Name1", "TrueMeter":[1,2,3,4,5,6] },
+    { "sn":"0x2345", "channels":"6", "status":"1", "vp":"1", "revision":"8", "name":"Card Name2", "TrueMeter":[1,2,3,4,5,6] },
+    { "sn":"0x3456", "channels":"6", "status":"1", "vp":"1", "revision":"8", "name":"Card Name3", "TrueMeter":[1,2,3,4,5,6] }
+  ],
+  "SP2": [
+    { "cards":"2","type":"4"},
+    { "sn":"0x0234", "channels":"6", "status":"1", "vp":"1", "revision":"8", "name":"Card Name1", "TrueMeter":[1,2,3,4,5,6] },
+    { "sn":"0x3345", "channels":"6", "status":"1", "vp":"1", "revision":"8", "name":"Card Name2", "TrueMeter":[1,2,3,4,5,6] }  
+  "SP3": [
+  	{ "cards":"1","type":"4"},
+    { "sn":"0x4456", "channels":"6", "status":"1", "vp":"1", "revision":"8", "name":"Card Name9", "TrueMeter":[1,2,3,4,5,6] }
+  ],
+  "SP4": [
+  	{ "cards":"4","type":"4"},
+    { "sn":"0x5234", "channels":"6", "status":"1", "vp":"1", "revision":"8", "name":"Card Name1", "TrueMeter":[1,2,3,4,5,6] },
+    { "sn":"0x6345", "channels":"6", "status":"1", "vp":"1", "revision":"8", "name":"Card Name2", "TrueMeter":[1,2,3,4,5,6] },
+    { "sn":"0x7456", "channels":"6", "status":"1", "vp":"1", "revision":"8", "name":"Card Name3", "TrueMeter":[1,2,3,4,5,6] },
+    { "sn":"0x8789", "channels":"6", "status":"1", "vp":"1", "revision":"8", "name":"Card Name3", "TrueMeter":[1,2,3,4,5,6] }
+  ]  
+ }
+
+/* example with nothing connected on last two smart ports */
+ myObj = {
+  "SP1": [
+    { "cards":"3","type":"4"},
+    { "card":"0x1234", "Channels":"6", "Status":"1", "VP":"1", "Revision":"8", "name":"Card Name1", "TrueMeter":[1,2,3,4,5,6] },
+    { "card":"0x2345", "Channels":"6", "Status":"1", "VP":"1", "Revision":"8", "name":"Card Name2", "TrueMeter":[1,2,3,4,5,6] },
+    { "card":"0x3456", "Channels":"6", "Status":"1", "VP":"1", "Revision":"8", "name":"Card Name3", "TrueMeter":[1,2,3,4,5,6] }
+  ],
+  "SP2": [
+    { "cards":"3","type":"4"},
+    { "card":"0x1234", "Channels":"6", "Status":"1", "VP":"1", "Revision":"8", "name":"Card Name4", "TrueMeter":[1,2,3,4,5,6] },
+    { "card":"0x2345", "Channels":"6", "Status":"1", "VP":"1", "Revision":"8", "name":"Card Name5", "TrueMeter":[1,2,3,4,5,6] },
+    { "card":"0x3456", "Channels":"6", "Status":"1", "VP":"1", "Revision":"8", "name":"Card Name6", "TrueMeter":[1,2,3,4,5,6] }
+  ], 
+"SP3": [
+    { "cards":"0","type":"0"}   
+  ],
+  "SP4": [
+    { "cards":"0","type":"0"}
+  ]  
+ }
+
+
+/* example of what is returned from get_device_info */
+
+To access the name "Feed 23" from the second card on smart port 1 =  myOBJ.SP1[2].name
+
+ {
+	"DEVICE": {
+		"model": "iMMC",
+		"name": "AMCM",
+		"location": "Panel#1",
+		"version": "1.110",
+		"mac": "70B3D57F50AC"
+	},
+	"SP1": [{
+		"cards": "2",
+		"type": "15"
+	}, {
+		"sn": "19877",
+		"channels": "6",
+		"status": "1",
+		"vp": "0",
+		"revision": "8",
+		"name": "Feed L12",
+		"TrueMeter": [1, 1, 1, 2, 2, 2]
+	}, {
+		"sn": "5678",
+		"channels": "6",
+		"status": "1",
+		"vp": "0",
+		"revision": "8",
+		"name": "Feed 23",
+		"TrueMeter": [3, 3, 3, 4, 4, 4]
+	}],
+	"SP2": [{
+		"cards": "0",
+		"type": "0"
+	}],
+	"SP3": [{
+		"cards": "0",
+		"type": "0"
+	}],
+	"SP4": [{
+		"cards": "0",
+		"type": "0"
+	}]
+}
